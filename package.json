@@ -1,13 +1,14 @@
 {
   "name": "express-server-modules",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Express.js server with modular structure",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["express", "nodejs", "server"],
+  "author": "Your Name",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.4.7",
@@ -17,3 +18,4 @@
     "nodemon": "^3.1.9"
   }
 }
+
