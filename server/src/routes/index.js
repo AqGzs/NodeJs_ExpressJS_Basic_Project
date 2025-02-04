@@ -1,18 +1,12 @@
-const express = require('express');
-const {
-  getUsers,
-  createUser,
-  getUserById,
-  updateUser,
-  deleteUser,
-} = require('../controllers/userController');
-
+const express = require("express");
 const router = express.Router();
 
-router.get('/users', getUsers);
-router.post('/users', createUser);
-router.get('/users/:id', getUserById);
-router.put('/users/:id', updateUser);
-router.delete('/users/:id', deleteUser);
+const authRoutes = require("./auth.routes");
+
+router.use("/auth", authRoutes);
+
+router.get("/", (req, res) => {
+    res.send("API is running...");
+});
 
 module.exports = router;
