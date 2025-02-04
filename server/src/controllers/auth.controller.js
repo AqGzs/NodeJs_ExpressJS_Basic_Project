@@ -4,17 +4,15 @@ const bcrypt = require("bcryptjs");
 
 exports.register = async (req, res) => {
     try {
-        const { username, email, password, role } = req.body;
+        const { username, email, password } = req.body;
 
-        const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-        if (existingUser) {
-            return res.status(400).json({ message: "Username or email already exists" });
-        }
+        const existingUser = await User.findOne({ email });
+        if (existingUser) return res.status(400).json({ message: "Email already exists" });
 
-        const user = new User({ username, email, password, role });
-        await user.save();
-        res.status(201).json({ message: "User registered successfully" });
+        const newUser = new User({ username, email, password, role: "student" });
+        await newUser.save();
 
+        res.status(201).json({ message: "User registered successfully. Default role is student." });
     } catch (error) {
         res.status(500).json({ message: "Error registering user", error: error.message });
     }
@@ -38,5 +36,22 @@ exports.login = async (req, res) => {
         res.json({ token });
     } catch (error) {
         res.status(500).json({ message: "Error logging in", error: error.message });
+    }
+};
+
+exports.updateUserRole = async (req, res) => {
+    try {
+        const { role } = req.body;
+
+        if (!["admin", "teacher", "student"].includes(role)) {
+            return res.status(400).json({ message: "Invalid role" });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(req.params.id, { role }, { new: true });
+        if (!updatedUser) return res.status(404).json({ message: "User not found" });
+
+        res.json({ message: "User role updated successfully", updatedUser });
+    } catch (error) {
+        res.status(500).json({ message: "Error updating user role", error: error.message });
     }
 };
