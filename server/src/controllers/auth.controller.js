@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const redisClient = require("../config/redisConfig");
 
 exports.register = async (req, res) => {
     try {
@@ -32,7 +33,7 @@ exports.login = async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
-
+        await redisClient.set(`user:${user._id}`, JSON.stringify(user), { EX: 600 });
         res.json({ token });
     } catch (error) {
         res.status(500).json({ message: "Error logging in", error: error.message });
@@ -49,9 +50,20 @@ exports.updateUserRole = async (req, res) => {
 
         const updatedUser = await User.findByIdAndUpdate(req.params.id, { role }, { new: true });
         if (!updatedUser) return res.status(404).json({ message: "User not found" });
-
+        await redisClient.del(`user:${userId}`);
         res.json({ message: "User role updated successfully", updatedUser });
     } catch (error) {
         res.status(500).json({ message: "Error updating user role", error: error.message });
+    }
+};
+exports.logout = async (req, res) => {
+    try {
+        const token = req.header("Authorization")?.split(" ")[1];
+        if (token) {
+            await redisClient.set(`blacklist:${token}`, "revoked", { EX: 3600 });
+        }
+        res.json({ message: "Logged out successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Error logging out", error: error.message });
     }
 };

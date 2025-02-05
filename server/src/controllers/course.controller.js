@@ -1,9 +1,11 @@
 const Course = require("../models/Course");
 const Student = require("../models/student");
+const redisClient = require("../config/redisConfig");
 
 exports.getAllCourses = async (req, res) => {
     try {
         const courses = await Course.find().populate("teacher", "username email").populate("students", "name email");
+        await redisClient.set(req.originalUrl, JSON.stringify(courses), { EX: 600 });
         res.json(courses);
     } catch (error) {
         res.status(500).json({ message: "Error fetching courses", error: error.message });
@@ -14,6 +16,7 @@ exports.getCourseById = async (req, res) => {
     try {
         const course = await Course.findById(req.params.id).populate("teacher", "username email").populate("students", "name email");
         if (!course) return res.status(404).json({ message: "Course not found" });
+        await redisClient.set(req.originalUrl, JSON.stringify(course), { EX: 600 });
         res.json(course);
     } catch (error) {
         res.status(500).json({ message: "Error fetching course", error: error.message });
@@ -49,6 +52,9 @@ exports.deleteCourse = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Error deleting course", error: error.message });
     }
+};
+exports.invalidateCourseCache = async () => {
+    await redisClient.del("/api/courses");
 };
 
 exports.enrollStudent = async (req, res) => {

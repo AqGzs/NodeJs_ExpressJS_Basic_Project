@@ -1,10 +1,12 @@
 const Grade = require("../models/Grade");
 const Student = require("../models/student");
 const Course = require("../models/Course");
+const redisClient = require("../config/redisConfig");
 
 exports.getAllGrades = async (req, res) => {
     try {
         const grades = await Grade.find().populate("student", "name email").populate("course", "name");
+        await redisClient.set(req.originalUrl, JSON.stringify(grades), { EX: 600 });
         res.json(grades);
     } catch (error) {
         res.status(500).json({ message: "Error fetching grades", error: error.message });
@@ -18,6 +20,7 @@ exports.getGradesByStudent = async (req, res) => {
             .sort({ createdAt: -1 });
 
         if (!studentGrades.length) return res.status(404).json({ message: "No grades found for this student" });
+        await redisClient.set(req.originalUrl, JSON.stringify(studentGrades), { EX: 600 });
         res.json(studentGrades);
     } catch (error) {
         res.status(500).json({ message: "Error fetching student's grades", error: error.message });
@@ -61,4 +64,7 @@ exports.deleteGrade = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Error deleting grade", error: error.message });
     }
+};
+exports.invalidateGradeCache = async () => {
+    await redisClient.del("/api/grades");
 };
