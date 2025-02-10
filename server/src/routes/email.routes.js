@@ -6,4 +6,5 @@ const router = express.Router();
 
 router.post("/announcement", authMiddleware, roleMiddleware(["admin"]), sendAnnouncementEmail);
 
+
 module.exports = router;

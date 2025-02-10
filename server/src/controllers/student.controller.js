@@ -1,4 +1,6 @@
 const Student = require("../models/student");
+const Course = require("../models/Course");
+const { queueEmail, queueNotification } = require("../services/queueService");
 const redisClient = require("../config/redisConfig");
 
 exports.getAllStudents = async (req, res) => {

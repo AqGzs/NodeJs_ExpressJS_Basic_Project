@@ -8,4 +8,11 @@ const emailQueue = new Queue("emailQueue", {
     }
 });
 
-module.exports = emailQueue;
+const notificationQueue = new Queue("notificationQueue", {
+    redis: {
+        host: process.env.REDIS_HOST || "127.0.0.1",
+        port: process.env.REDIS_PORT || 6380
+    }
+});
+
+module.exports = { emailQueue, notificationQueue };

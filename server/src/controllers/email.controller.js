@@ -1,5 +1,5 @@
 const { sendEmail } = require("../services/emailService");
-const Student = require("../models/Student");
+const Student = require("../models/student");
 const Course = require("../models/Course");
 
 exports.sendEnrollmentEmail = async (studentId, courseId) => {
