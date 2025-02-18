@@ -3,7 +3,7 @@ FROM node:16
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN apt update && apt install -y redis-tools
 
 COPY . .
 
